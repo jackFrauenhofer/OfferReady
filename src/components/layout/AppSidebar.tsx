@@ -40,9 +40,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">SR</span>
-          </div>
+          <img
+            src="/favicon.svg"
+            alt="Logo"
+            className="w-8 h-8 rounded-lg"
+          />
           {!collapsed && (
             <span className="font-semibold text-foreground">StreetReady</span>
           )}
