@@ -1,0 +1,233 @@
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
+import { toast } from 'sonner';
+
+const profileSchema = z.object({
+  school: z.string().optional(),
+  graduation_year: z.coerce.number().min(2020).max(2030).optional(),
+  recruiting_goal: z.string().optional(),
+  weekly_interactions_goal: z.coerce.number().min(1).max(50).optional(),
+  weekly_flashcards_goal: z.coerce.number().min(1).max(100).optional(),
+});
+
+type ProfileFormData = z.infer<typeof profileSchema>;
+
+export function SettingsPage() {
+  const { user } = useAuth();
+  const { profile, updateProfile, isLoading } = useProfile(user?.id);
+
+  const form = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    values: {
+      school: profile?.school || '',
+      graduation_year: profile?.graduation_year || undefined,
+      recruiting_goal: profile?.recruiting_goal || 'Investment Banking',
+      weekly_interactions_goal: profile?.weekly_interactions_goal || 10,
+      weekly_flashcards_goal: profile?.weekly_flashcards_goal || 20,
+    },
+  });
+
+  const onSubmit = async (data: ProfileFormData) => {
+    try {
+      await updateProfile.mutateAsync({
+        school: data.school || null,
+        graduation_year: data.graduation_year || null,
+        recruiting_goal: data.recruiting_goal || null,
+        weekly_interactions_goal: data.weekly_interactions_goal || 10,
+        weekly_flashcards_goal: data.weekly_flashcards_goal || 20,
+      });
+      toast.success('Settings saved');
+    } catch (error) {
+      toast.error('Failed to save settings');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 animate-fade-in max-w-2xl">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+        <p className="text-muted-foreground">Manage your account and preferences</p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile</CardTitle>
+          <CardDescription>
+            Your personal information for recruiting
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="school"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>School</FormLabel>
+                      <FormControl>
+                        <Input placeholder="University name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="graduation_year"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Graduation Year</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="recruiting_goal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Recruiting Goal</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Investment Banking" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end">
+                <Button type="submit" disabled={updateProfile.isPending}>
+                  {updateProfile.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Weekly Goals</CardTitle>
+          <CardDescription>
+            Set targets for your weekly activity
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="weekly_interactions_goal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Weekly Interactions Goal</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={1} max={50} {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Target networking interactions per week
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="weekly_flashcards_goal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Weekly Flashcards Goal</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={1} max={100} {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Target flashcards to study per week
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end">
+                <Button type="submit" disabled={updateProfile.isPending}>
+                  {updateProfile.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Account</CardTitle>
+          <CardDescription>
+            Your account information
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex justify-between py-2">
+              <span className="text-sm text-muted-foreground">Email</span>
+              <span className="text-sm font-medium">{user?.email}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Integrations</CardTitle>
+          <CardDescription>
+            Connect external services to enhance your workflow
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <p className="text-sm font-medium">Google Calendar</p>
+              <p className="text-xs text-muted-foreground">
+                Sync your scheduled calls with Google Calendar
+              </p>
+            </div>
+            <Button variant="outline" disabled>
+              Coming Soon
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
