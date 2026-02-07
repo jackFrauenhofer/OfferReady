@@ -165,10 +165,9 @@ export function AuthPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-6">
-            <span className="text-primary-foreground font-bold text-2xl">OR</span>
+          <div className="mx-auto w-32 h-32 mb-6">
+            <img src="/favicon.svg" alt="OfferReady" className="w-full h-full" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">OfferReady</h1>
           <p className="mt-2 text-muted-foreground">Your personal CRM for investment banking recruiting</p>
         </div>
 
