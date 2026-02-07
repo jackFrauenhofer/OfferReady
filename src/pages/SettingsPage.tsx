@@ -28,6 +28,7 @@ const profileSchema = z.object({
   recruiting_goal: z.string().optional(),
   weekly_interactions_goal: z.coerce.number().min(1).max(50).optional(),
   weekly_flashcards_goal: z.coerce.number().min(1).max(100).optional(),
+  weekly_mock_interviews_goal: z.coerce.number().min(1).max(20).optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -61,6 +62,7 @@ export function SettingsPage() {
       recruiting_goal: profile?.recruiting_goal || 'Investment Banking',
       weekly_interactions_goal: profile?.weekly_interactions_goal || 10,
       weekly_flashcards_goal: profile?.weekly_flashcards_goal || 20,
+      weekly_mock_interviews_goal: profile?.weekly_mock_interviews_goal || 3,
     },
   });
 
@@ -72,6 +74,7 @@ export function SettingsPage() {
         recruiting_goal: data.recruiting_goal || null,
         weekly_interactions_goal: data.weekly_interactions_goal || 10,
         weekly_flashcards_goal: data.weekly_flashcards_goal || 20,
+        weekly_mock_interviews_goal: data.weekly_mock_interviews_goal || 3,
       });
       toast.success('Settings saved');
     } catch (error) {
@@ -196,6 +199,23 @@ export function SettingsPage() {
                     </FormControl>
                     <FormDescription>
                       Target flashcards to study per week
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="weekly_mock_interviews_goal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Weekly Mock Interviews Goal</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={1} max={20} {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Target mock interview sessions per week
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

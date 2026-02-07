@@ -25,6 +25,7 @@ export interface Profile {
   recruiting_goal: string | null;
   weekly_interactions_goal: number | null;
   weekly_flashcards_goal: number | null;
+  weekly_mock_interviews_goal: number | null;
   onboarding_completed: boolean;
   created_at: string;
   updated_at: string;

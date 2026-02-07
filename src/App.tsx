@@ -19,6 +19,8 @@ import { MockInterviewPage } from "@/pages/MockInterviewPage";
 import { MockInterviewSessionPage } from "@/pages/MockInterviewSessionPage";
 import { MockInterviewSummaryPage } from "@/pages/MockInterviewSummaryPage";
 import { TasksPage } from "@/pages/TasksPage";
+import { PrivacyPage } from "@/pages/PrivacyPage";
+import { TermsPage } from "@/pages/TermsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -96,6 +98,8 @@ const App = () => (
             <Route path="/mock-interview/session/:sessionId" element={<MockInterviewSessionPage />} />
             <Route path="/mock-interview/session/:sessionId/summary" element={<MockInterviewSummaryPage />} />
           </Route>
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

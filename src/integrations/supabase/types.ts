@@ -543,6 +543,7 @@ export type Database = {
           user_id: string
           weekly_flashcards_goal: number | null
           weekly_interactions_goal: number | null
+          weekly_mock_interviews_goal: number | null
         }
         Insert: {
           created_at?: string
@@ -556,6 +557,7 @@ export type Database = {
           user_id: string
           weekly_flashcards_goal?: number | null
           weekly_interactions_goal?: number | null
+          weekly_mock_interviews_goal?: number | null
         }
         Update: {
           created_at?: string
@@ -569,6 +571,7 @@ export type Database = {
           user_id?: string
           weekly_flashcards_goal?: number | null
           weekly_interactions_goal?: number | null
+          weekly_mock_interviews_goal?: number | null
         }
         Relationships: []
       }

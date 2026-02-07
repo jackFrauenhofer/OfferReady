@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
-import { Phone, Activity, PhoneCall, Target, CheckSquare } from 'lucide-react';
+import { Phone, Activity, PhoneCall, Target, CheckSquare, Mic } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -31,14 +31,31 @@ export function DashboardPage() {
   const { tasks, toggleTaskComplete, isLoading: tasksLoading } = useTasks(user?.id);
   const navigate = useNavigate();
 
+  // Fetch mock interview sessions for this week
+  const weekStart = useMemo(() => startOfWeek(new Date(), { weekStartsOn: 1 }), []);
+  const weekEnd = useMemo(() => endOfWeek(new Date(), { weekStartsOn: 1 }), []);
+
+  const { data: weeklyMockInterviews = [] } = useQuery({
+    queryKey: ['weeklyMockInterviews', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from('mock_interview_sessions')
+        .select('id')
+        .eq('user_id', user.id)
+        .gte('created_at', weekStart.toISOString())
+        .lte('created_at', weekEnd.toISOString());
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
   // Fetch interactions for this week
   const { data: weeklyInteractions = [] } = useQuery({
     queryKey: ['weeklyInteractions', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
-      const weekEnd = endOfWeek(new Date(), { weekStartsOn: 1 });
-      
       const { data, error } = await supabase
         .from('interactions')
         .select('*')
@@ -62,8 +79,10 @@ export function DashboardPage() {
   const weeklyProgress = useMemo(() => {
     const interactionsGoal = profile?.weekly_interactions_goal || 10;
     const flashcardsGoal = profile?.weekly_flashcards_goal || 20;
+    const mockInterviewsGoal = profile?.weekly_mock_interviews_goal || 3;
     const interactionsThisWeek = weeklyInteractions.length;
     const flashcardsThisWeek = masteryData?.studiedThisWeek || 0;
+    const mockInterviewsThisWeek = weeklyMockInterviews.length;
     
     return {
       interactions: {
@@ -76,8 +95,13 @@ export function DashboardPage() {
         goal: flashcardsGoal,
         percentage: Math.min((flashcardsThisWeek / flashcardsGoal) * 100, 100),
       },
+      mockInterviews: {
+        current: mockInterviewsThisWeek,
+        goal: mockInterviewsGoal,
+        percentage: Math.min((mockInterviewsThisWeek / mockInterviewsGoal) * 100, 100),
+      },
     };
-  }, [weeklyInteractions, profile, masteryData]);
+  }, [weeklyInteractions, profile, masteryData, weeklyMockInterviews]);
 
   // Get pending tasks (sorted by due date, limited to 5)
   const pendingTasks = useMemo(() => {
@@ -143,6 +167,15 @@ export function DashboardPage() {
               </span>
             </div>
             <Progress value={weeklyProgress.flashcards.percentage} className="h-2" />
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Mock interviews this week</span>
+              <span className="font-medium">
+                {weeklyProgress.mockInterviews.current}/{weeklyProgress.mockInterviews.goal}
+              </span>
+            </div>
+            <Progress value={weeklyProgress.mockInterviews.percentage} className="h-2" />
           </div>
         </CardContent>
       </Card>
