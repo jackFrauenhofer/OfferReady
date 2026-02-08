@@ -120,7 +120,8 @@ export function useTour() {
     }
   }, [profile, phase, tourActive]);
 
-  // Auto-start tour for new users after onboarding
+  // Auto-start tour only once: right after the user first completes onboarding.
+  // Uses sessionStorage so it won't re-trigger on refresh or subsequent logins.
   useEffect(() => {
     if (
       profile &&
@@ -129,8 +130,10 @@ export function useTour() {
       !tourActive &&
       !dismissedRef.current &&
       phase === 'idle' &&
-      location.pathname === '/dashboard'
+      location.pathname === '/dashboard' &&
+      !sessionStorage.getItem('tour_auto_started')
     ) {
+      sessionStorage.setItem('tour_auto_started', 'true');
       // Small delay so the dashboard renders first
       const timer = setTimeout(() => {
         startTour();
@@ -342,6 +345,7 @@ export function useTour() {
   // Manually restart tour (from Settings)
   const restartTour = useCallback(async () => {
     dismissedRef.current = false;
+    sessionStorage.removeItem('tour_auto_started');
     try {
       await updateProfile.mutateAsync({ tour_completed: false });
     } catch {
